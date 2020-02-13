@@ -1,0 +1,13 @@
+---
+title: "Selina data EDA"
+author: "Health Data Science Unit"
+date: "`r date()`"
+output: html_document
+---
+
+## Loading data
+
+```{r loading_data}
+file_names <- list.files('../data/', full.names = TRUE)
+counts <- lapply(file_names, function(n) readRDS(n))
+```
