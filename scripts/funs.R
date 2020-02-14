@@ -14,7 +14,7 @@ liger_save <- function(ligerex,
                 clusters=ligerex@clusters)
         
         cat('Saving results\n')
-        saveRDS(ligerex, dir_path)
+        saveRDS(liger_res, dir_path)
 }
 
 
