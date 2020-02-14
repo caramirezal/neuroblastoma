@@ -5,9 +5,43 @@ date: "`r date()`"
 output: html_document
 ---
 
+
+```{r include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(Seurat)
+library(xlsx)
+
+knitr::opts_chunk$set(warning = FALSE,
+                      message = FALSE,
+                      cache = TRUE,
+                      fig.width = 8,
+                      fig.height = 7)
+```
 ## Loading data
 
-```{r loading_data}
-file_names <- list.files('../data/', full.names = TRUE)
-counts <- lapply(file_names, function(n) readRDS(n))
+
+
+
+
+## Batch correction using Liger
+
+```{r processing_tsne}
+liger_res <- readRDS('../data/batch_correction_sum.rds') 
+liger_df <- liger_res$tsne_coords %>% 
+        as.data.frame %>% 
+        rename(tSNE1=V1, tSNE2=V2) %>% 
+        mutate(dataset=liger_res$cell_data$dataset,
+               signatures=liger_res$clusters)
+```
+
+```{r vis}
+ggplot(liger_df, aes(tSNE1, tSNE2, colour=dataset)) +
+        geom_point(alpha=0.4) +
+        theme_classic() +
+        ggtitle('Batch corrected')
+```
+
+```{r}
+dim(liger_df)
 ```
