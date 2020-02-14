@@ -2,7 +2,7 @@
 
 liger_save <- function(ligerex,
                        dir_path = '.') {
-        cat('Creating list object')
+        cat('Creating list object\n')
         liger_res <- list(
                 H=ligerex@H,
                 cell_data=ligerex@cell.data,
@@ -13,7 +13,7 @@ liger_save <- function(ligerex,
                 alignment_clusters=ligerex@alignment.clusters,
                 clusters=ligerex@clusters)
         
-        cat('Saving results')
+        cat('Saving results\n')
         saveRDS(ligerex, dir_path)
 }
 
