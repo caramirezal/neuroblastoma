@@ -7,10 +7,7 @@ output: html_document
 
 
 ```{r include=FALSE}
-library(ggplot2)
 library(tidyverse)
-library(Seurat)
-library(xlsx)
 
 knitr::opts_chunk$set(warning = FALSE,
                       message = FALSE,
@@ -19,7 +16,6 @@ knitr::opts_chunk$set(warning = FALSE,
                       fig.height = 7)
 ```
 ## Loading data
-
 
 
 
