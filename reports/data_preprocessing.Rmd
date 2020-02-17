@@ -1,0 +1,90 @@
+---
+title: "Data preprocessing"
+author: "Health Data Science Unit"
+date: "`r date()`"
+output: html_document
+---
+
+
+```{r include=FALSE}
+library(Seurat)
+library(tidyverse)
+library(gridExtra)
+
+knitr::opts_chunk$set(warning = FALSE,
+                      message = FALSE,
+                      cache = TRUE,
+                      fig.align = TRUE,
+                      fig.height = 8,
+                      fig.width = 10, 
+                      cache.lazy = FALSE)
+```
+
+## Adrenal Medulla
+
+```{r}
+## Loading annotations
+adrenal_ann <- read.table('../data/cell_type_annotation_medulla.tsv', sep = '\t')
+adrenal_ann <- mutate(adrenal_ann, barcodes=rownames(adrenal_ann))
+```
+
+```{r echo=FALSE}
+adrenal <- read_rds('../data/batch_correction_adrenal_medulla_tsne.rds')
+by_signature <- adrenal$tsne_coords %>%
+                as.data.frame %>%
+                rename(tSNE1=V1, tSNE2=V2) %>%
+                ggplot(aes(tSNE1, tSNE2, colour = adrenal$clusters)) +
+                    geom_point(alpha = 0.4, size = 2) + 
+                    theme_classic() +
+                    theme(legend.title = element_blank(),
+                          legend.position = 'bottom') +
+                    ggtitle('By signature')
+
+```
+
+```{r echo=FALSE}
+by_dataset <- adrenal$tsne_coords %>%
+                as.data.frame %>%
+                rename(tSNE1=V1, tSNE2=V2) %>%
+                ggplot(aes(tSNE1, tSNE2, colour = adrenal$cell_data$dataset)) +
+                    geom_point(alpha = 0.5, size = 1.5) + 
+                    theme_classic() +
+                    theme(legend.title = element_blank()) +
+                    ggtitle('By dataset')
+
+```
+
+```{r}
+by_dataset
+```
+
+```{r echo=FALSE}
+coords <- adrenal$tsne_coords %>% 
+              as.data.frame %>%
+              rename(tSNE1=V1, tSNE2=V2) %>%
+              mutate(barcodes = rownames(adrenal$tsne_coords))
+coords_ann <- merge(coords, adrenal_ann)              
+head(coords_ann)
+by_cell_type <- coords_ann %>% 
+         ggplot(aes(tSNE1, tSNE2, colour = Idents.combined_all_med.)) +
+         geom_point(alpha = 0.5, size = 1.5) + 
+         theme_classic() +
+         theme(legend.title = element_blank(),
+               legend.position = 'bottom') +
+          ggtitle('By cell type')
+```
+
+```{r}
+grid.arrange(by_signature, by_cell_type, ncol=2)
+```
+
+## Glandulla projection
+
+```{r eval=FALSE}
+## Loading glandulla projection
+neuro_seu <- readRDS('../data/batch_correction.rds')
+neuro_umap <- RunUMAP(neuro_seu, dims=1:8, reduction = 'iNMF')
+DimPlot(neuro_umap, reduction = 'umap', group.by = 'orig.ident')
+```
+
+
