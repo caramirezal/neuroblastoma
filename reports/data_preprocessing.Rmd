@@ -21,12 +21,115 @@ knitr::opts_chunk$set(warning = FALSE,
 ```
 
 ## Adrenal Medulla
-
+        
 ```{r}
 ## Loading annotations
-adrenal_ann <- read.table('../data/cell_type_annotation_medulla.tsv', sep = '\t')
+adrenal_ann <- read.table('../data/cell_type_annotation_medulla.tsv', sep = '\t',
+                          stringsAsFactors = FALSE)
 adrenal_ann <- mutate(adrenal_ann, barcodes=rownames(adrenal_ann))
 ```
+
+
+```{r results='asis'}
+plot_seurat <- function(file_url='seurat.rds', annotation) {
+       sample <- readRDS(file_url) 
+       sam_ann <- data.frame(barcodes=colnames(sample), stringsAsFactors = FALSE)
+       metadata <- merge(sam_ann, annotation)
+       sample$'cell_type' <- metadata$Idents.combined_all_med.
+       DimPlot(sample, group.by = 'cell_type' , reduction = 'umap', label = TRUE) + NoLegend()
+}
+```
+
+
+## Reproducibility of clusters {.tabset}
+
+
+
+### Sample 13363
+
+```{r echo=FALSE}
+plot_seurat('../data/13363_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 13363
+
+```{r echo=FALSE}
+plot_seurat('../data/13567_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 13667
+
+```{r echo=FALSE}
+plot_seurat('../data/13667_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 13952
+
+```{r echo=FALSE}
+plot_seurat('../data/13952_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14164
+
+```{r echo=FALSE}
+plot_seurat('../data/14164_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14490
+```{r echo=FALSE}
+plot_seurat('../data/14490_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14627
+
+```{r echo=FALSE}
+plot_seurat('../data/14627_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14707
+
+```{r echo=FALSE}
+plot_seurat('../data/14707_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14742
+
+```{r echo=FALSE}
+plot_seurat('../data/14742_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14766
+
+```{r echo=FALSE}
+plot_seurat('../data/14766_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14773
+
+```{r echo=FALSE}
+plot_seurat('../data/14773_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 14933
+
+```{r echo=FALSE}
+plot_seurat('../data/14933_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 15084
+
+```{r echo=FALSE}
+plot_seurat('../data/15084_med_seurat.rds', adrenal_ann)
+```
+
+### Sample 15161
+
+```{r echo=FALSE}
+plot_seurat('../data/15161_med_seurat.rds', adrenal_ann)
+```
+
+
+## Batch correction
 
 ```{r echo=FALSE}
 adrenal <- read_rds('../data/batch_correction_adrenal_medulla_tsne.rds')
@@ -54,7 +157,7 @@ by_dataset <- adrenal$tsne_coords %>%
 
 ```
 
-```{r}
+```{r echo=FALSE}
 by_dataset
 ```
 
@@ -63,8 +166,8 @@ coords <- adrenal$tsne_coords %>%
               as.data.frame %>%
               rename(tSNE1=V1, tSNE2=V2) %>%
               mutate(barcodes = rownames(adrenal$tsne_coords))
-coords_ann <- merge(coords, adrenal_ann)              
-head(coords_ann)
+coords_ann <- merge(coords, adrenal_ann) 
+
 by_cell_type <- coords_ann %>% 
          ggplot(aes(tSNE1, tSNE2, colour = Idents.combined_all_med.)) +
          geom_point(alpha = 0.5, size = 1.5) + 
@@ -74,13 +177,19 @@ by_cell_type <- coords_ann %>%
           ggtitle('By cell type')
 ```
 
-```{r}
+### Clusters in corrected data
+
+```{r echo=FALSE}
 grid.arrange(by_signature, by_cell_type, ncol=2)
 ```
 
+
 ## Glandulla projection
 
-```{r eval=FALSE}
+
+## Batch correction
+
+```{r}
 ## Loading glandulla projection
 neuro_seu <- readRDS('../data/batch_correction.rds')
 neuro_umap <- RunUMAP(neuro_seu, dims=1:8, reduction = 'iNMF')
