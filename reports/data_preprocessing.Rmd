@@ -197,3 +197,17 @@ DimPlot(neuro_umap, reduction = 'umap', group.by = 'orig.ident')
 ```
 
 
+```{r}
+## Loading data
+file_names <- list.files('../data/intratumoral/', full.names=TRUE)
+f_names <- gsub('../data/intratumoral/', '', file_names)
+f_names <- gsub('_.*|/', '', f_names)
+f_names <- gsub('\\.rds', '', f_names)
+f_names
+
+seurat <- lapply(file_names, readRDS)
+seurat <- merge(x = seurat[[1]], y = seurat[2:length(seurat)])
+saveRDS(seurat, '../data/intratumoral_merged_seurat.rds')
+```
+
+
