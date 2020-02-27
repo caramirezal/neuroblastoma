@@ -189,7 +189,7 @@ grid.arrange(by_signature, by_cell_type, ncol=2)
 
 ## Batch correction
 
-```{r}
+```{r echo=FALSE}
 ## Loading glandulla projection
 neuro_seu <- readRDS('../data/batch_correction.rds')
 neuro_umap <- RunUMAP(neuro_seu, dims=1:8, reduction = 'iNMF')
@@ -208,6 +208,10 @@ f_names
 seurat <- lapply(file_names, readRDS)
 seurat <- merge(x = seurat[[1]], y = seurat[2:length(seurat)])
 saveRDS(seurat, '../data/intratumoral_merged_seurat.rds')
+
+seurat.p <- readRDS('../data/intratumotal_liger_seurat.rds')
+seurat.p <- RunUMAP(seurat.p, dims=1:8, reduction = 'iNMF')
+DimPlot(seurat.p, group.by = 'orig.ident', reduction = 'umap')
 ```
 
 
