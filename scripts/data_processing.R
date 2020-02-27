@@ -1,11 +1,11 @@
 library(liger)
 
 ## Loading data
-#file_names <- list.files('data', full.names=TRUE)
-#f_names <- gsub('data/', '', file_names)
-#f_names <- gsub('_.*', '', f_names)
-#f_names <- paste0('nb', f_names)
-#f_names
+file_names <- list.files('data', full.names=TRUE)
+f_names <- gsub('data/', '', file_names)
+f_names <- gsub('_.*', '', f_names)
+f_names <- paste0('nb', f_names)
+f_names
 
 #counts <- lapply(file_names, readRDS)
 #lapply(counts, function(c) c[1:1, 1:2] )
@@ -29,12 +29,12 @@ cat('Run TSNE\n')
 cat('Saving results\n')
 #saveRDS(ligerex, 'data/batch_correction.rds')
 
-ligerex <- readRDS('data/batch_correction.rds')
+#ligerex <- readRDS('data/batch_correction.rds')
 
-cat('Plotting visualizations\n')
-pdf('figures/batch_correction.pdf')
-plotByDatasetAndCluster(ligerex) #Can also pass in different set of cluster labels to plot
-plotFeature(ligerex, "nUMI")
-plotWordClouds(ligerex)
-plotGeneLoadings(ligerex)
-dev.off()
+#cat('Plotting visualizations\n')
+#pdf('figures/batch_correction.pdf')
+#plotByDatasetAndCluster(ligerex) #Can also pass in different set of cluster labels to plot
+#plotFeature(ligerex, "nUMI")
+#plotWordClouds(ligerex)
+#plotGeneLoadings(ligerex)
+#dev.off()
