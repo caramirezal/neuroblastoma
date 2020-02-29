@@ -1,8 +1,10 @@
 ---
-title: "Data preprocessing"
+title: "Neuroblastoma batch correction"
 author: "Health Data Science Unit"
 date: "`r date()`"
-output: html_document
+output: 
+   html_document:
+           code_folding: hide
 ---
 
 
@@ -10,6 +12,7 @@ output: html_document
 library(Seurat)
 library(tidyverse)
 library(gridExtra)
+library(knitr)
 
 knitr::opts_chunk$set(warning = FALSE,
                       message = FALSE,
@@ -20,7 +23,7 @@ knitr::opts_chunk$set(warning = FALSE,
                       cache.lazy = FALSE)
 ```
 
-## Adrenal Medulla
+## Adrenal Medulla 
         
 ```{r}
 ## Loading annotations
@@ -41,7 +44,7 @@ plot_seurat <- function(file_url='seurat.rds', annotation) {
 ```
 
 
-## Reproducibility of clusters {.tabset}
+## <span style='color:red'> Reproducibility of clusters </span> (OUTDATED) {.tabset} 
 
 
 
@@ -51,7 +54,7 @@ plot_seurat <- function(file_url='seurat.rds', annotation) {
 plot_seurat('../data/13363_med_seurat.rds', adrenal_ann)
 ```
 
-### Sample 13363
+### Sample 13367
 
 ```{r echo=FALSE}
 plot_seurat('../data/13567_med_seurat.rds', adrenal_ann)
@@ -129,7 +132,9 @@ plot_seurat('../data/15161_med_seurat.rds', adrenal_ann)
 ```
 
 
-## Batch correction
+
+
+## <span style='color:red'> Batch correction </span>
 
 ```{r echo=FALSE}
 adrenal <- read_rds('../data/batch_correction_adrenal_medulla_tsne.rds')
@@ -177,19 +182,21 @@ by_cell_type <- coords_ann %>%
           ggtitle('By cell type')
 ```
 
-### Clusters in corrected data
+### <span style='color:red'> Clusters in batch corrected data </span> (OUTDATED)
 
 ```{r echo=FALSE}
 grid.arrange(by_signature, by_cell_type, ncol=2)
 ```
 
 
+
+
+
+
+
+```{r echo=FALSE, eval=FALSE}
 ## Glandulla projection
-
-
 ## Batch correction
-
-```{r echo=FALSE}
 ## Loading glandulla projection
 neuro_seu <- readRDS('../data/batch_correction.rds')
 neuro_umap <- RunUMAP(neuro_seu, dims=1:8, reduction = 'iNMF')
@@ -197,7 +204,7 @@ DimPlot(neuro_umap, reduction = 'umap', group.by = 'orig.ident')
 ```
 
 
-```{r}
+```{r eval=FALSE, echo=FALSE}
 ## Loading data
 file_names <- list.files('../data/intratumoral/', full.names=TRUE)
 f_names <- gsub('../data/intratumoral/', '', file_names)
@@ -208,10 +215,84 @@ f_names
 seurat <- lapply(file_names, readRDS)
 seurat <- merge(x = seurat[[1]], y = seurat[2:length(seurat)])
 saveRDS(seurat, '../data/intratumoral_merged_seurat.rds')
+```
 
+
+```{r eval=FALSE, echo=FALSE}
 seurat.p <- readRDS('../data/intratumotal_liger_seurat.rds')
 seurat.p <- RunUMAP(seurat.p, dims=1:8, reduction = 'iNMF')
 DimPlot(seurat.p, group.by = 'orig.ident', reduction = 'umap')
 ```
+
+
+## <span style='color:green'> Adrenal Medulla Updated </span> 
+
+## Clusters
+
+```{r}
+adrenal_seu <- readRDS('../data/adrenal_medulla_new/combined_medulla_cc_anno.rds') 
+adrenal_ann <- read.table('../data/adrenal_medulla_new/cell_type_annotation_medulla_cc.tsv', sep = '\t')
+colnames(adrenal_ann) <- gsub('\\.', '', colnames(adrenal_ann))
+adrenal_seu <- AddMetaData(adrenal_seu, adrenal_ann)
+a <- DimPlot(adrenal_seu, 
+             group.by = 'Identscombined_normal_all_med_red_cc_anno', 
+             reduction ='umap', 
+             label = TRUE) + NoLegend()
+b <- DimPlot(adrenal_seu, 
+             group.by = 'orig.ident', 
+             reduction ='umap', 
+             label = TRUE) + NoLegend()
+CombinePlots(list(a, b))
+```
+
+
+
+```{r eval=FALSE}
+adrenal_seu %>% 
+        subset(orig.ident == "14933") %>%
+        DimPlot(group.by = 'Identscombined_normal_all_med_red_cc_anno', 
+             reduction ='umap', 
+             label = TRUE) + NoLegend()
+```
+
+```{r eval=FALSE}
+samps <- unique(adrenal_seu$old.ident)
+plots <- list()
+for ( i in samps ) {
+        ss <- subset(adrenal_seu, orig.ident == i) 
+        p <- DimPlot(ss, group.by = 'Identscombined_normal_all_med_red_cc_anno', 
+             reduction ='umap', 
+             label = TRUE) + NoLegend()
+        plots <- c(plots, p)
+}
+        
+
+adrenal_seu %>% 
+        subset(orig.ident == "14933") %>%
+        DimPlot(group.by = 'Identscombined_normal_all_med_red_cc_anno', 
+             reduction ='umap', 
+             label = TRUE) + NoLegend()
+```
+
+
+
+## <span style='color:green'> Reproducibility of clusters </span> {.tabset}
+
+```{r}
+samps <- unique(adrenal_seu$old.ident)
+out <- lapply(sort(samps), function(i) {
+
+  a1 <- knitr::knit_expand(text = sprintf("### Sample %s\n", i)) # tab header, auto extracts names of `hcs`
+  a2 <- knitr::knit_expand(text = "\n```{r}\n\n") # start r chunk
+  a3 <- knitr::knit_expand(text = sprintf("DimPlot(subset(adrenal_seu, orig.ident=='%s'), group.by = 'Identscombined_normal_all_med_red_cc_anno', reduction ='umap', label = TRUE) + NoLegend()", i) ) # extract graphs by "writing" out `hcs[[1]]`, `hcs[[2]]` etc. to be rendered later
+  a4 <- knitr::knit_expand(text = "\n```\n") # end r chunk
+
+  paste(a1, a2, a3, a4, collapse = '\n') # collapse together all lines with newline separator
+
+})
+
+```
+
+`r paste(knitr::knit(text = paste(out, collapse = '\n')))`
 
 
