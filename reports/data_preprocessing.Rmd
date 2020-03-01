@@ -13,6 +13,8 @@ library(Seurat)
 library(tidyverse)
 library(gridExtra)
 library(knitr)
+library(liger)
+library(SeuratWrappers)
 
 knitr::opts_chunk$set(warning = FALSE,
                       message = FALSE,
@@ -296,3 +298,19 @@ out <- lapply(sort(samps), function(i) {
 `r paste(knitr::knit(text = paste(out, collapse = '\n')))`
 
 
+## Batch correction
+
+
+```{r}
+ss <- sapply(adrenal_seu$orig.ident, 
+             function(i) 
+               ! i %in% c('13667', '13952', '14627', '14742', '14773'))
+adrenal_seu.s <- adrenal_seu[,ss]
+adrenal_seu.s <- NormalizeData(adrenal_seu.s)
+adrenal_seu.s <- FindVariableFeatures(adrenal_seu.s)
+adrenal_seu.s <- ScaleData(adrenal_seu.s, split.by = "orig.ident", do.center = FALSE)
+adrenal_seu.s <- RunOptimizeALS(adrenal_seu.s, k = 8, lambda = 5, split.by = "orig.ident")
+adrenal_seu.s <- RunQuantileAlignSNF(adrenal_seu.s, split.by = "orig.ident")
+adrenal_seu.s <- RunUMAP(adrenal_seu.s, dims = 1:ncol(adrenal_seu[["iNMF"]]), reduction = "iNMF")
+DimPlot(adrenal_seu.s, group.by = 'orig.ident', ncol = 3)
+```
